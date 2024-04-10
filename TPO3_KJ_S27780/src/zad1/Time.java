@@ -47,7 +47,7 @@ public class Time {
         return formatTheResultCorrectlyWithoutTime(parsedFrom, parsedTo);
 
     }
-
+   
     private static String formatTheResultCorrectlyWithoutTime(LocalDate parsedFrom, LocalDate parsedTo) {
         StringBuilder resultBuilder = new StringBuilder();
         Locale resultFormatter = new Locale("pl", "PL");

@@ -1,0 +1,72 @@
+package zad1;
+
+import java.util.*;
+
+public class OptionsHehe {
+
+    private String host;
+    private int port;
+    private boolean concurMode;
+    private boolean showSendRes;
+    private Map<String, List<String>> clientsMap = new LinkedHashMap<>();
+
+    public OptionsHehe() {}
+
+    public OptionsHehe(String host, int port, boolean concurMode, boolean showSendRes,
+                   Map<String, List<String>> clientsMap) {
+        this.host = host;
+        this.port = port;
+        this.concurMode = concurMode;
+        this.showSendRes = showSendRes;
+        this.clientsMap = clientsMap;
+    }
+
+    public void setHost(String host) {
+        this.host = host;}
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setConcurMode(boolean concurMode) {
+        this.concurMode = concurMode;
+    }
+
+    public void setShowSendRes(boolean showSendRes) {
+        this.showSendRes = showSendRes;
+    }
+
+    public void setClientsMap(Map<String, List<String>> clientsMap) {
+        this.clientsMap = clientsMap;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public boolean isConcurMode() {
+        return concurMode;
+    }
+
+    public boolean isShowSendRes() {
+        return showSendRes;
+    }
+
+    public Map<String, List<String>> getClientsMap() {
+        return clientsMap;
+    }
+
+    public String toString() {
+        String out = "";  // StringBuilder bardziej efektywny, ale za dużo pisania
+        out += host + " " + port + " " + concurMode + " " + showSendRes + "\n";
+        for (Map.Entry<String, List<String>> e : clientsMap.entrySet()) {
+            out += e.getKey() + ": " + e.getValue() + "\n";
+        }
+        return out;
+    }
+
+}
