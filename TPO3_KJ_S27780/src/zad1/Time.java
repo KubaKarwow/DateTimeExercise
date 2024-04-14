@@ -66,6 +66,7 @@ public class Time {
         return resultBuilder.toString();
     }
 
+
     private static String formatTheResultCorrectlyWithTime(LocalDateTime parsedFrom, LocalDateTime parsedTo) {
         StringBuilder resultBuilder = new StringBuilder();
         Locale resultFormatter = new Locale("pl", "PL");
