@@ -19,14 +19,14 @@ public class Time {
 //- data bez czasu: YYYY-MM-DD
 //- data z czasem: YYYY-MM-DDTGG:MM
     public static String passed(String from, String to) {
-        try{
+        try {
             if (from.contains("T")) {
                 return handleDateWithTime(from, to);
             } else {
                 return handleDateWithoutTime(from, to);
             }
-        } catch (DateTimeParseException e){
-            return "*** "+e.toString();
+        } catch (DateTimeParseException e) {
+            return "*** " + e.toString();
         }
 
     }
@@ -47,21 +47,34 @@ public class Time {
         return formatTheResultCorrectlyWithoutTime(parsedFrom, parsedTo);
 
     }
-   
+
+    private static String formatDaysAndWeeksBetweenPart(long daysBetween) {
+        String weeksBetween = formWeeksString((daysBetween * 1.0) / 7);
+        StringBuilder resultBuilder = new StringBuilder();
+        resultBuilder.append("\n").append(" - mija: ").append(daysBetween);
+        if (daysBetween == 1) {
+            resultBuilder.append(" dzień, tygodni ");
+        } else {
+            resultBuilder.append(" dni, tygodni ");
+        }
+        resultBuilder.append(weeksBetween);
+        return resultBuilder.toString();
+    }
+
     private static String formatTheResultCorrectlyWithoutTime(LocalDate parsedFrom, LocalDate parsedTo) {
         StringBuilder resultBuilder = new StringBuilder();
         Locale resultFormatter = new Locale("pl", "PL");
         long daysBetween = ChronoUnit.DAYS.between(parsedFrom, parsedTo);
-        String weeksBetween = formWeeksString(daysBetween * 1.0 / 7);
         Period between = Period.between(parsedFrom, parsedTo);
+
 
         resultBuilder.append("Od ").append(parsedFrom.getDayOfMonth()).append(" ")
                 .append(parsedFrom.getMonth().getDisplayName(TextStyle.FULL, resultFormatter)).append(" ")
                 .append(parsedFrom.getYear()).append(" ").append("(")
                 .append(parsedFrom.getDayOfWeek().getDisplayName(TextStyle.FULL, resultFormatter)).append(")")
                 .append(" do ").append(parsedTo.getDayOfMonth()).append(" ").append(parsedTo.getMonth().getDisplayName(TextStyle.FULL, resultFormatter))
-                .append(" ").append(parsedTo.getYear()).append(" (").append(parsedTo.getDayOfWeek().getDisplayName(TextStyle.FULL, resultFormatter))
-                .append(")\n").append(" - mija: ").append(daysBetween).append(" dni, tygodni ").append(weeksBetween)
+                .append(" ").append(parsedTo.getYear()).append(" (").append(parsedTo.getDayOfWeek().getDisplayName(TextStyle.FULL, resultFormatter)).append(")")
+                .append(formatDaysAndWeeksBetweenPart(daysBetween))
                 .append(giveProperCalendarDifference(between));
         return resultBuilder.toString();
     }
@@ -71,8 +84,7 @@ public class Time {
         StringBuilder resultBuilder = new StringBuilder();
         Locale resultFormatter = new Locale("pl", "PL");
 
-        long daysBetween = ChronoUnit.DAYS.between(parsedFrom, parsedTo);
-        String weeksBetween = formWeeksString(daysBetween * 1.0 / 7);
+        long daysBetween = giveProperDaysBetween(parsedFrom, parsedTo);
         Period between = Period.between(parsedFrom.toLocalDate(), parsedTo.toLocalDate());
 
 
@@ -84,10 +96,25 @@ public class Time {
                 .append(" do ").append(parsedTo.getDayOfMonth()).append(" ").append(parsedTo.getMonth().getDisplayName(TextStyle.FULL, resultFormatter))
                 .append(" ").append(parsedTo.getYear()).append(" (").append(parsedTo.getDayOfWeek().getDisplayName(TextStyle.FULL, resultFormatter))
                 .append(") ").append("godz. ").append(formatHourAndMinute(parsedTo.getHour(), parsedTo.getMinute()))
-                .append("\n").append(" - mija: ").append(daysBetween).append(" dni, tygodni ").append(weeksBetween)
+                .append(formatDaysAndWeeksBetweenPart(daysBetween))
                 .append(giveProperHourAndMinuteDiffernce(parsedFrom, parsedTo))
                 .append(giveProperCalendarDifference(between));
         return resultBuilder.toString();
+    }
+
+    private static long giveProperDaysBetween(LocalDateTime from, LocalDateTime to) {
+        ZoneId zoneId = ZoneId.of("Europe/Warsaw");
+        ZonedDateTime zdtFrom = ZonedDateTime.of(from, zoneId);
+        ZonedDateTime zdtTo = ZonedDateTime.of(to, zoneId);
+        long daysBetween = ChronoUnit.DAYS.between(zdtFrom, zdtTo);
+        if (compareHourAndMinute(zdtFrom, zdtTo) <= 0) return daysBetween;
+        else return daysBetween + 1;
+    }
+
+    private static int compareHourAndMinute(ZonedDateTime from, ZonedDateTime to) {
+        int timeFrom = from.getHour() * 60 + from.getMinute();
+        int timeTo = to.getHour() * 60 + to.getMinute();
+        return Integer.compare(timeFrom, timeTo);
     }
 
     private static String giveProperHourAndMinuteDiffernce(LocalDateTime from, LocalDateTime to) {
@@ -120,12 +147,7 @@ public class Time {
     }
 
     private static String formWeeksString(double weeks) {
-        String s = String.valueOf(weeks);
-        String[] twoParts = s.split("\\.");
-
-        String result = twoParts[0] + ".";
-        if (twoParts[1].length() == 1) return result += twoParts[1];
-        else return result + twoParts[1].substring(0, 2);
+        return String.format("%.2f", weeks).replaceAll(",", ".");
     }
 
     private static String giveProperCalendarDifference(Period between) {
